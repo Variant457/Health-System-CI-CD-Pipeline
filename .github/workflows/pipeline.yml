@@ -60,7 +60,7 @@ jobs:
             run: docker build -t $IMAGE_REPO:$IMAGE_TAG .
             
           - name: Load Local Image to Deployment Cluster
-            run: kind load docker-image $IMAGE_REPO:$IMAGE_TAG
+            run: kind load docker-image $IMAGE_REPO:$IMAGE_TAG --name chart-testing
         
           - name: Deploy Kubernetes Manifests
             run: |
