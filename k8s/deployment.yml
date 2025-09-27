@@ -4,7 +4,7 @@ kind: Deployment
 metadata:
   name: $APP_NAME
 spec:
-  replicas: 2
+  replicas: 1
   strategy:
     type: RollingUpdate
     rollingUpdate:    # Ensures Server is always up while an update is being deployed
@@ -29,13 +29,13 @@ spec:
               containerPort: 8080
           startupProbe:
             httpGet:
-              path: /patients
+              path: /actuator/health/liveness
               port: 8080
             periodSeconds: 5
             failureThreshold: 30
           readinessProbe:   # Marks when App is ready
             httpGet:
-              path: /patients
+              path: /actuator/health/readiness
               port: 8080
             initialDelaySeconds: 5
             periodSeconds: 5
@@ -43,7 +43,7 @@ spec:
             failureThreshold: 3
           livenessProbe:    # Marks if server is healthy; restarts if fails
             httpGet:
-              path: /patients
+              path: /actuator/health/liveness
               port: 8080
             initialDelaySeconds: 60
             periodSeconds: 10
