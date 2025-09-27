@@ -8,7 +8,7 @@ spec:
   strategy:
     type: RollingUpdate
     rollingUpdate:    # Ensures Server is always up while an update is being deployed
-      maxUnavaliable: 0
+      maxUnavailable: 0
       maxSurge: 1
   selector:
     matchLabels:
