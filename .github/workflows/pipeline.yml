@@ -65,7 +65,8 @@ jobs:
           - name: Deploy Kubernetes Manifests
             run: |
                 kubectl get ns $NAMESPACE || kubectl create ns $NAMESPACE
-                export IMAGE="$IMAGE_REPO:$IMAGE_TAG"
+                export APP_NAME="${APP_NAME:-health-app}"
+                export IMAGE="${IMAGE_REPO}:${IMAGE_TAG}"
                 envsubst < k8s/deployment.yml > /tmp/deploy.yml
                 envsubst < k8s/service.yml > /tmp/svc.yml
                 kubectl apply -n $NAMESPACE -f /tmp/deploy.yml

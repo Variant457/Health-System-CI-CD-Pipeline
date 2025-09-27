@@ -2,7 +2,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ${APP_NAME:-health-app}
+  name: $APP_NAME
 spec:
   replicas: 2
   strategy:
@@ -12,17 +12,17 @@ spec:
       maxSurge: 1
   selector:
     matchLabels:
-      app: ${APP_NAME:-health-app}
+      app: $APP_NAME
   template:
     metadata:
       labels:
-        app: ${APP_NAME:-health-app}
+        app: $APP_NAME
     spec:
       securityContext:
         runAsNonRoot: true
       containers:
         - name: app
-          image: ${IMAGE}
+          image: $IMAGE
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
