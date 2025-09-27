@@ -49,15 +49,15 @@ jobs:
                 distribution: 'temurin'
           - uses: azure/setup-kubectl@v4
           - uses: azure/setup-helm@v4
+          - uses: helm/kind-action@v1
+            with:
+                wait: 120s
 
           - name: Package App
             run: mvn -B -DskipTests package -f healthcare-info-system/pom.xml
 
           - name: Build Deployment Container Image
             run: docker build -t $IMAGE_REPO:$IMAGE_TAG .
-
-          - name: Create Kubernetes Cluster
-            uses: helm/kind-action@v1
             
           - name: Load Local Image to Deployment Cluster
             run: kind load docker-image $IMAGE_REPO:$IMAGE_TAG
