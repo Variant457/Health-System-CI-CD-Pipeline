@@ -15,7 +15,7 @@ jobs:
                 key: ${{runner.os}}-m2-${{hashFiles('**/pom.xml')}}
 
           - name: Package Healthcare App
-            run: mvm -B -DskipTests package
+            run: mvn -B -DskipTests package
 
           - name: Build Local Container Image
             run: docker build -t health-app:ci .
@@ -44,7 +44,7 @@ jobs:
           - uses: azure/setup-helm@v4
 
           - name: Package App
-            run: mvm -B -DskipTests package
+            run: mvn -B -DskipTests package
 
           - name: Build Deployment Container Image
             run: docker build -t $IMAGE_REPO:$IMAGE_TAG .
