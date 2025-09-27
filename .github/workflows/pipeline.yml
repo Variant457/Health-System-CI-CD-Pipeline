@@ -14,6 +14,12 @@ jobs:
                 path: ~/.m2/repository
                 key: ${{runner.os}}-m2-${{hashFiles('**/pom.xml')}}
 
+          - name: Debug Repo Tree
+            run: |
+                pwd
+                ls -la
+                find . -maxdepth 2 -type f -name "pom.xml" -o -name "Dockerfile" -o -name "*.yml" -o -name "*.yaml"
+
           - name: Package Healthcare App
             run: mvn -B -DskipTests package -f app/pom.xml
 
