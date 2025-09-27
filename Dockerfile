@@ -2,9 +2,9 @@
 FROM maven:latest AS build
 WORKDIR /app
 COPY ./healthcare-info-system/pom.xml .
-RUN --mount=type=cache,target=root/.m2 mvm -q -e -B -DSkipTests dependency:go-offline
+RUN --mount=type=cache,target=root/.m2 mvn -q -e -B -DSkipTests dependency:go-offline
 COPY ./healthcare-info-system/src ./src
-RUN --mount=type=cache,target=root/.m2 mvm -q -e -B -DSkipTests package
+RUN --mount=type=cache,target=root/.m2 mvn -q -e -B -DSkipTests package
 
 # Run the Docker Container as Read-Only User
 FROM eclipse-temurin:latest
