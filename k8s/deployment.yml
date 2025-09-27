@@ -4,7 +4,7 @@ kind: Deployment
 metadata:
   name: $APP_NAME
 spec:
-  replicas: 1
+  replicas: 2
   strategy:
     type: RollingUpdate
     rollingUpdate:    # Ensures Server is always up while an update is being deployed

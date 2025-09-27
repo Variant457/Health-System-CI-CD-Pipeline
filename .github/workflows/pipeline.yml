@@ -77,14 +77,40 @@ jobs:
                 kubectl rollout status deploy/$APP_NAME -n $NAMESPACE --timeout=180s
                 kubectl get all -n $NAMESPACE
 
-          - name: Function Testing
+          - name: Function Test
             run: |
-                kubectl -n $NAMESPACE port-forward deploy/$APP_NAME 8080:8080 >/tmp/pf.log 2>&1 &
+                set -eo pipefail    
+
+                # Forward service from port 80 to 8080
+                kubectl -n $NAMESPACE port-forward svc/$APP_NAME 8080:80 >/tmp/pf.log 2>&1 &
                 PF_PID=$!
-                sleep 4
-                echo "GET:" && curl -sf http://localhost:8080/patients
-                echo "POST:" && curl -sf -H 'Content-Type: application/json' -d '"Eve"' http://localhost:8080/patients
-                echo "VERIFY:" && curl -sf http://localhost:8080/patients | grep -q "Eve"
+                
+                # Waits for Port to be Forwarded
+                for i in {1..30}; do
+                    if grep -q "Forwarding from 127.0.0.1:8080 ->" /tmp/pf.log; then
+                        break
+                    fi
+                    sleep 1
+                done
+                echo "------ port-forward log ------"
+                tail -n +1 /tmp/pf.log || true
+
+                echo "------ readiness health ------"
+                curl -sS -o /tmp/health.json -w "HTTP %{http_code}\n" http://127.0.0.1:8080/actuator/health/readiness
+                cat /tmp/health.json; echo
+
+                echo "------ GET /patients (status+body) ------"
+                curl -sS -o /tmp/patients1.json -w "HTTP %{http_code}\n" http://127.0.0.1:8080/patients
+                cat /tmp/patients1.json; echo
+
+                echo "------ POST /patients \"Eve\" ------"
+                curl -sS -i -H 'Content-Type: application/json' -d '"Eve"' http://127.0.0.1:8080/patients
+                
+                echo "------ GET /patients (verify Eve) ------"
+                curl -sS -o /tmp/patients2.json -w "HTTP %{http_code}\n" http://127.0.0.1:8080/patients
+                cat /tmp/patients2.json; echo
+                grep -q "Eve" /tmp/patients2.json
+
                 kill $PF_PID || true
 
           - name: Dump Logs
