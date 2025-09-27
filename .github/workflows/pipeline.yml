@@ -15,10 +15,10 @@ jobs:
                 key: ${{runner.os}}-m2-${{hashFiles('**/pom.xml')}}
 
           - name: Package Healthcare App
-            run: mvn -B -DskipTests package
+            run: mvn -B -DskipTests package -f app/pom.xml
 
           - name: Build Local Container Image
-            run: docker build -t health-app:ci .
+            run: docker build -t health-app:ci app/
 
           - name: Save .jar File
             uses: actions/upload-artifact@v4
@@ -44,10 +44,10 @@ jobs:
           - uses: azure/setup-helm@v4
 
           - name: Package App
-            run: mvn -B -DskipTests package
+            run: mvn -B -DskipTests package -f app/pom.xml
 
           - name: Build Deployment Container Image
-            run: docker build -t $IMAGE_REPO:$IMAGE_TAG .
+            run: docker build -t $IMAGE_REPO:$IMAGE_TAG app/
 
           - name: Create Kubernetes Cluster
             uses: helm/kind-action@v1
@@ -59,7 +59,7 @@ jobs:
             run: |
                 kubectl get ns $NAMESPACE || kubectl create ns $NAMESPACE
                 export IMAGE="$IMAGE_REPO:$IMAGE_TAG"
-                envsubst < h8s/deployment.yml > /tmp/deploy.yml
+                envsubst < k8s/deployment.yml > /tmp/deploy.yml
                 envsubst < k8s/service.yml > /tmp/svc.yml
                 kubectl apply -n $NAMESPACE -f /tmp/deploy.yml
                 kubectl apply -n $NAMESPACE -f /tmp/svc.yml
@@ -93,4 +93,4 @@ jobs:
             uses: actions/upload-artifact@v4
             with:
                 name: rendered-manifests
-                path: /tmp/*yml
+                path: /tmp/*.yml
