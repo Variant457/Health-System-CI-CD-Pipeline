@@ -6,7 +6,7 @@ RUN --mount=type=cache,target=root/.m2 mvm -q -e -B -DSkipTests dependency:go-of
 COPY ./healthcare-info-system/src ./src
 RUN --mount=type=cache,target=root/.m2 mvm -q -e -B -DSkipTests package
 
-# Gotta figure out what the point of this is
+# Run the Docker Container as Read-Only User
 FROM eclipse-temurin:latest
 WORKDIR /opt/app
 RUN useradd -r -u 1001 appuser

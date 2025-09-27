@@ -21,10 +21,10 @@ jobs:
                 find . -maxdepth 2 -type f -name "pom.xml" -o -name "Dockerfile" -o -name "*.yml" -o -name "*.yaml"
 
           - name: Package Healthcare App
-            run: mvn -B -DskipTests package -f app/pom.xml
+            run: mvn -B -DskipTests package -f healthcare-info-system/pom.xml
 
           - name: Build Local Container Image
-            run: docker build -t health-app:ci app/
+            run: docker build -t health-app:ci .
 
           - name: Save .jar File
             uses: actions/upload-artifact@v4
@@ -50,10 +50,10 @@ jobs:
           - uses: azure/setup-helm@v4
 
           - name: Package App
-            run: mvn -B -DskipTests package -f app/pom.xml
+            run: mvn -B -DskipTests package -f healthcare-info-system/pom.xml
 
           - name: Build Deployment Container Image
-            run: docker build -t $IMAGE_REPO:$IMAGE_TAG app/
+            run: docker build -t $IMAGE_REPO:$IMAGE_TAG .
 
           - name: Create Kubernetes Cluster
             uses: helm/kind-action@v1
