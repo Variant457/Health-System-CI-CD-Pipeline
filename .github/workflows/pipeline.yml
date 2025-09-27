@@ -34,6 +34,7 @@ jobs:
     deploy-to-kind:
         name: Ephemeral Kubernetes Deployment
         runs-on: ubuntu-latest
+        needs: [build]
         #needs: [e2e-tests]     ------TODO------
         env:
             APP_NAME: health-app
