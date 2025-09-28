@@ -31,10 +31,28 @@ jobs:
             with:
                 name: app-jar
                 path: target/*.jar
+    #unit-tests
+        #name: Unit Tests
+        #runs-on: ubuntu-latest
+        #needs: [build]
+        #...
+    
+    #integration-tests
+        #name: Integration Tests
+        #runs-on: ubuntu-latest
+        #needs: [unit-tests]
+        #...
+
+    # e2e-tests
+        #name: End-to-End Tests
+        #runs-on: ubuntu-latest
+        #needs: [integration-tests]
+        #...
+
     deploy-to-kind:
         name: Ephemeral Kubernetes Deployment
         runs-on: ubuntu-latest
-        needs: [build]
+        needs: [build]  # Remove when e2e-tests exists
         #needs: [e2e-tests]     ------TODO------
         env:
             APP_NAME: health-app
@@ -114,7 +132,6 @@ jobs:
                 kill $PF_PID || true
 
           - name: Dump Logs
-            if: failure()
             run: |
                 kubectl describe deploy/$APP_NAME -n $NAMESPACE || true
                 kubectl get pods -n $NAMESPACE -o wide
