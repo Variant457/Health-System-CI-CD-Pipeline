@@ -1,4 +1,4 @@
-package com.healthcare.controller;
+package com.healthcare.healthcare_info_system.controller;
 
 import org.springframework.web.bind.annotation.*;
 import java.util.*;
