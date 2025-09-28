@@ -1,5 +1,6 @@
-package com.healthcare.controller;
+package com.healthcare;
 
+import com.healthcare.healthcare_info_system.controller.PatientController;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
