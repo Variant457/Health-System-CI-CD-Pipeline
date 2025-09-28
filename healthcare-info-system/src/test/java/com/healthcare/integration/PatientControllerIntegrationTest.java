@@ -1,6 +1,7 @@
 package com.healthcare.integration;
 
 import com.healthcare.healthcare_info_system.controller.PatientController;
+import com.healthcare.HealthcareInfoSystemApplication;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.beans.factory.annotation.Autowired;
