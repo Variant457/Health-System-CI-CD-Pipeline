@@ -1,18 +1,25 @@
 package com.healthcare.healthcare_info_system.e2e;
 
 import io.restassured.RestAssured;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.web.server.LocalServerPort;
 
 import static io.restassured.RestAssured.*;
 import static org.hamcrest.Matchers.*;
 
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class PatientE2ETest {
 
-    @BeforeAll
-    static void setup() {
+    @LocalServerPort
+    private int port;
+
+    @BeforeEach
+    void setup() {
+        // Set RestAssured to use the random port Spring Boot chose
         RestAssured.baseURI = "http://localhost";
-        RestAssured.port = 8080;
+        RestAssured.port = port;
     }
 
     @Test
@@ -35,3 +42,4 @@ public class PatientE2ETest {
             .body(containsString("David"));
     }
 }
+
