@@ -1,4 +1,4 @@
-package com.healthcare;
+package com.healthcare.e2e;
 
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.BeforeAll;

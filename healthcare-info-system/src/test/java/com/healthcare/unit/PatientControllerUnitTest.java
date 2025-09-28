@@ -1,4 +1,4 @@
-package com.healthcare;
+package com.healthcare.unit;
 
 import com.healthcare.healthcare_info_system.controller.PatientController;
 import org.junit.jupiter.api.Test;
