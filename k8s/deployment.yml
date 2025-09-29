@@ -4,6 +4,7 @@ kind: Deployment
 metadata:
   name: $APP_NAME
 spec:
+  revisionHistoryLimit: 5
   replicas: 2
   strategy:
     type: RollingUpdate

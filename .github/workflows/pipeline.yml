@@ -110,14 +110,12 @@ jobs:
                 kubectl apply -n $NAMESPACE -f /tmp/deploy.yml
                 kubectl apply -n $NAMESPACE -f /tmp/svc.yml
 
-          - name: Waiting for Cluster to Become Availiable
+          - name: Health Checks & Rollback Upon Failure
             run: |
+                # Waits for Rollout
+                set -eo pipefail
                 kubectl rollout status deploy/$APP_NAME -n $NAMESPACE --timeout=180s
-                kubectl get all -n $NAMESPACE
-
-          - name: Function Test
-            run: |
-                set -eo pipefail    
+                kubectl get all -n $NAMESPACE    
 
                 # Forward service from port 80 to 8080
                 kubectl -n $NAMESPACE port-forward svc/$APP_NAME 8080:80 >/tmp/pf.log 2>&1 &
@@ -149,9 +147,19 @@ jobs:
                 cat /tmp/patients2.json; echo
                 grep -q "Eve" /tmp/patients2.json
 
+                echo "------ Health Check ------"
+                curl=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8080/actuator/health/readiness || true)
                 kill $PF_PID || true
 
+                if ["$code" != 200 ]; then
+                  echo "Health check failed with HTTP $code \n Rolling back..."
+                  kubectl rollout undo deploy/$APP_NAME -n $NAMESPACE
+                  kubectl rollout status deploy/$APP_NAME -n $NAMESPACE --timeout=120s || true
+                  exit 1
+                fi
+
           - name: Dump Logs
+            if: failure()
             run: |
                 kubectl describe deploy/$APP_NAME -n $NAMESPACE || true
                 kubectl get pods -n $NAMESPACE -o wide
@@ -159,6 +167,13 @@ jobs:
                     echo "------- $p -------"
                     kubectl logs -n $NAMESPACE $p || true
                 done
+
+          - name: Rollback on failure
+            if: failure()
+            run: |
+              echo "Failure has occured; Rolling back..."
+              kubectl rollout undo deploy/$APP_NAME -n $NAMESPACE
+              kubectl rollout status deploy/$APP_NAME -n $NAMESPACE --timeout=120s || true
 
           - name: Save Rendered Manifests
             uses: actions/upload-artifact@v4
