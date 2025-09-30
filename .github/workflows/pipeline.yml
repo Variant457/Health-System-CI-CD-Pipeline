@@ -40,7 +40,7 @@ jobs:
                 name: app-jar
                 path: target/*.jar
 
-          - name: Scan image with Trivy (local)
+          - name: Scan image with Trivy
             uses: aquasecurity/trivy-action@0.24.0
             with:
               scan-type: image
