@@ -5,6 +5,14 @@ on: [push, pull_request]
 jobs:
     build:
         runs-on: ubuntu-latest
+        env:
+          IMAGE_NAME: health-app
+          IMAGE_TAG: ${{github.sha}}
+        permissions:
+          contents: read
+          packages: write
+        outputs:
+          image_ref: ${{steps.meta.outputs.image_ref}}
         steps:
           - uses: actions/checkout@v4
           - uses: actions/setup-java@v4
@@ -15,6 +23,24 @@ jobs:
             with:
                 path: ~/.m2/repository
                 key: ${{runner.os}}-m2-${{hashFiles('**/pom.xml')}}
+
+          - name: Login to GHCR
+            run: echo "${{secrets.GITHUB_TOKEN}}" | docker login ghcr.io -u "${{github.actor}}" --password-stdin
+
+          - name: Build, Push, and Expose Image Ref
+            id: meta
+            run: |
+              OWNER_LC="${GITHUB_REPOSITORY_OWNER,,}"
+              IMAGE="ghcr.io/${OWNER_LC}/${{env.IMAGE_NAME}}:${{env.IMAGE_TAG}}"
+              echo "Building $IMAGE"
+
+              docker build -t "$IMAGE" .
+              docker push "$IMAGE"
+
+              echo "image_ref=$IMAGE" >> "$GITHUB_OUTPUT"
+    
+          - name: Show Pushed Image Ref
+            run: echo "Pushed Image = ${{steps.meta.outputs.image_ref}}"
 
           - name: Debug Repo Tree
             run: |
@@ -76,20 +102,14 @@ jobs:
       runs-on: ubuntu-latest
       needs: build
       env:
-        IMAGE_REPO: ghcr.io/Variant457/Health-System-CI-CD-Pipeline
+        IMAGE_REPO: health-app
         IMAGE_TAG: latest
       steps:
-        - name: Login to GitHub Credentials
-          uses: docker/login-action@v3
-          with:
-            registry: ghcr.io
-            username: ${{github.actor}}
-            password: ${{secrets.GITHUB_TOKEN}}
         - name: Scan Image with Trivy
           uses: aquasecurity/trivy-action@0.24.0
           with:
             scan-type: image
-            image-ref: ${{env.IMAGE_REPO}}:${{env.IMAGE_TAG}}
+            image-ref: ${{needs.build.outputs.image_ref}}
             format: 'table'
             ignore-unfixed: true
             vuln-type: 'os,library'
